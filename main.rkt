@@ -3,6 +3,17 @@
 ;; Sleep for N minutes
 ;;   racket tomato-timer.rkt N
 
+;; -----------------------------------------------------------------------------
+
+(require
+  (only-in racket/date
+    current-date
+    date->string
+    date-display-format)
+  (only-in racket/string
+    non-empty-string?
+    string-trim))
+
 ;; =============================================================================
 
 ;; make-piper : input-port? output-port? -> thread?
@@ -31,14 +42,23 @@
     (displayln "postponed items:")
     (displayln (format-todo-item ln))
     (for ([ln (in-lines in-port)])
-      (format-todo-item ln)
+      (define str (string-trim ln))
+      (when (non-empty-string? str)
+        (displayln (format-todo-item str)))
       (void))))
 
 ;; format-todo-item : string? -> string?
 (define (format-todo-item str)
   (string-append "- [ ] " str))
 
+(define (print-start)
+  (define d (current-date))
+  (parameterize ([date-display-format 'iso-8601])
+    (printf "starting timer (current time: ~a:~a)~n" (date-hour d) (date-minute d))
+    (void)))
+
 (define (tomato-timer minutes)
+  (print-start)
   (define-values (_in _out) (make-pipe #f 'tomato-in 'tomato-out))
   (define t (make-piper (current-input-port) _out))
   (define s (make-sleeper minutes))

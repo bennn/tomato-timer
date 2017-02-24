@@ -7,8 +7,9 @@ A command-line timer.
 ### Usage:
 
 To start a 25-minute timer:
+
 ```
-  raco tomato-timer
+  $ raco tomato-timer
 ```
 
 
@@ -17,7 +18,26 @@ To start a 25-minute timer:
 To start an `N` minute timer:
 
 ```
-  raco tomato-timer <N>
+  $ raco tomato-timer <N>
+```
+
+To record TODO list items while the timer is running, type them in the terminal:
+
+```
+  $ raco tomato-timer
+  feed the cat
+  google 'ron paul'
+  clean keyboard
+```
+
+This will print:
+
+```
+  TIME UP
+  postponed items:
+  - [ ] feed the cat
+  - [ ] google 'ron paul'
+  - [ ] clean keyboard
 ```
 
 
