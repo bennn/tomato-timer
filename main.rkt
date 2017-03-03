@@ -10,6 +10,8 @@
     current-date
     date->string
     date-display-format)
+  (only-in racket/format
+    ~a)
   (only-in racket/string
     non-empty-string?
     string-trim))
@@ -54,8 +56,11 @@
 (define (print-start)
   (define d (current-date))
   (parameterize ([date-display-format 'iso-8601])
-    (printf "starting timer (current time: ~a:~a)~n" (date-hour d) (date-minute d))
+    (printf "starting timer (current time: ~a:~a)~n" (two-digits (date-hour d)) (two-digits (date-minute d)))
     (void)))
+
+(define (two-digits n)
+  (~a n #:align 'right #:min-width 2 #:left-pad-string "0"))
 
 (define (tomato-timer minutes)
   (print-start)
