@@ -30,10 +30,10 @@
           (loop)))))))
 
 ;; make-sleeper : exact-postive-integer? -> thread?
-;; Create a thread that sleeps for a given number of minutes.
+;; Create a thread that sleeps for a given number of seconds.
 ;; Immediately returns a new thread descriptor.
-(define (make-sleeper minutes)
-  (thread (λ () (sleep (* 60 minutes)))))
+(define (make-sleeper seconds)
+  (thread (λ () (sleep seconds))))
 
 ;; print-todo-list : input-port -> void?
 ;; Read input from a port that describes a TODO list
@@ -62,11 +62,11 @@
 (define (two-digits n)
   (~a n #:align 'right #:min-width 2 #:left-pad-string "0"))
 
-(define (tomato-timer minutes)
+(define (tomato-timer seconds)
   (print-start)
   (define-values (_in _out) (make-pipe #f 'tomato-in 'tomato-out))
   (define t (make-piper (current-input-port) _out))
-  (define s (make-sleeper minutes))
+  (define s (make-sleeper seconds))
   (thread-wait s)
   (kill-thread t)
   (close-output-port _out)
@@ -74,13 +74,25 @@
   (close-input-port _in)
   (void))
 
+(define (time->seconds n unit)
+  (case unit
+   [(H) (* n 3600)]
+   [(M) (* n 60)]
+   [(S) n]
+   [else (raise-argument-error 'time->seconds "(or/c 'H 'M 'S)" 1 n unit)]))
+
 (module+ main
   (require racket/cmdline)
+  (define units (box 'M))
   (command-line
     #:program "tomato-timer"
+    #:once-any
+    [("-M" "--minutes") "Sleep for N minutes (default)" (set-box! units 'M)]
+    [("-H" "--hours") "Sleep for N hours" (set-box! units 'H)]
+    [("-S" "--seconds") "Sleep for N seconds" (set-box! units 'S)]
     #:args ([sleep-for "25"])
     (let ([n (string->number sleep-for)])
       (unless (exact-positive-integer? n)
         (raise-argument-error 'tomato-timer "a positive integer" n))
-      (tomato-timer n))))
+      (tomato-timer (time->seconds n (unbox units))))))
 
