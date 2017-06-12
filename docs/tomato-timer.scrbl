@@ -35,3 +35,8 @@ This example will print:
   - [ ] google 'ron paul'
   - [ ] clean keyboard
 }
+
+To learn more:
+@verbatim{
+  $ raco tomato-timer --help
+}
